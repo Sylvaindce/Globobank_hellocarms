@@ -1,0 +1,198 @@
+<!--
+AUTHOR: DECOMBE Sylvain
+-->
+<html>
+  <head>
+  	<meta charset="utf-8">
+    <meta name="author" content="DECOMBE Sylvain">
+    <title>Globobank HELLOCARMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+  </head>
+  <body>
+  	<div style="display: block; text-align: center;">
+  		<img src="img/logo.png" style="height: 35% !important; width: auto !important">
+  	</div>
+  	<div style="background-color: #53a9ee; padding: 5%; border-radius: 15px; color: #384047; margin-left: 5%; margin-right: 5%;margin-bottom: 5%;display: inline-block;">
+  		<h3 style="margin-bottom: 40px; text-align: center;">Calculate Premium result</h3>
+  		<!--action="process.php" method="post"-->
+  		<form>
+  			<div class="container">
+  				<legend><span class="number">1</span>Basic informations</legend>
+  				<label for="age">Age:</label>
+  				 <select id="age" name="user_age">
+  					<option value="1" selected>18 - 39</option>
+  					<option value="2">40 - 59</option>
+  					<option value="3">> 59</option>
+				</select> 
+          		<label for="height">Height:</label>
+          		<input style="margin-bottom: 0px !important;" type="number" id="height" name="user_height" placeholder="ex: 161 (cm)" min="100" max="300">
+              <p style="color: red;line-height: 20px;height: 20px;margin-bottom: 25px;" id="error_height"></p>
+          		<label for="weight">Weight:</label>
+          		<input style="margin-bottom: 0px !important;" type="number" id="weight" name="user_weight" placeholder="ex: 86 (kg)" min="30" max="300">
+              <p style="color: red;line-height: 20px;height: 20px; margin-bottom: 25px;" id="error_weight"></p>
+          	</div>
+          	<div class="container">
+          		<legend><span class="number">2</span>Additional informations</legend>
+  				    <label for="add1">Have you smocked cigarettes in the past 12 months ?</label>
+          		<input type="radio" id="add1" name="user_add1" value="0">Yes
+          		<input type="radio" id="add1" name="user_add1" value="1" checked>No
+          		<label for="add2">Have you ever been diagnosed with cancer, diabetes, high cholesterol, high blood pressure, a heart disorder, or stroke ?</label>
+          		<input type="radio" id="add2" name="user_add2" value="0">Yes
+          		<input type="radio" id="add2" name="user_add2" value="1" checked>No
+          		<label for="add3">Within the last 5 years, have you been hospitalized for more than 72 hours except for childbirth or broken bones ?</label>
+          		<input type="radio" id="add3" name="user_add3" value="0">Yes
+          		<input type="radio" id="add3" name="user_add3" value="1" checked>No
+          		<label for="add4">Within the last 5 years, have you been completely disabled from work for a week or longer due to a single illness or injury ?</label>
+          		<input type="radio" id="add4" name="user_add4" value="0">Yes
+          		<input type="radio" id="add4" name="user_add4" value="1" checked>No
+          	</div>
+            <div class="container" style="width: 98% !important;">
+            <legend><span class="number">3</span>Results</legend>
+          	<div style="text-align: center; display: flex; width: 100%; margin-bottom: 40px;">
+              <div style="width: 50%;float: left; text-align: center;">
+                <h5 style="width: 100%; color:#000; margin-bottom: 15px;">BMI</h5>
+                <p id="bmi" style="border: gray 2px solid; height: 40px; width: 75%; margin: 0 auto; border-radius: 8px; line-height: 40px;"></p>
+              </div>
+              <div style="width: 50%;float: left; text-align: center;">
+                <h5 style="width: 100%; color:#000; margin-bottom: 15px;">Premium result</h5>
+                <p id="premium" style="border: gray 2px solid; height: 40px; width: 75%; margin: 0 auto; border-radius: 8px; line-height: 40px;"></p>
+              </div>
+            </div>
+            <p id="result_s" style="min-height: 40px;line-height: 40px;border-radius: 10px;text-align: center;margin: 40px;padding: 10px;"></p>
+  			</div>
+  		</form>
+  	</div>
+  </body>
+  <script type="text/javascript">
+  	var age = 1;
+  	var height = 0;
+  	var weight = 0;
+  	var add1 = 1;
+  	var add2 = 1;
+  	var add3 = 1;
+  	var add4 = 1;
+
+    var bmi = 0;
+    var premium = 1;
+
+  	$(document).ready(function() {
+  		$('input[type=radio][name=user_add1]').change(function(){
+  			add1 = Math.round(this.value);
+  			update();
+  		});
+  		$('input[type=radio][name=user_add2]').change(function(){
+  			add2 = Math.round(this.value);
+  			update();
+  		});
+  		$('input[type=radio][name=user_add3]').change(function(){
+  			add3 = Math.round(this.value);
+  			update();
+  		});
+  		$('input[type=radio][name=user_add4]').change(function(){
+  			add4 = Math.round(this.value);
+  			update();
+  		});
+  		$('select[name=user_age]').change(function(){
+        age = Math.round(this.value);
+  			update();
+  		});
+  		$('#weight').on('input',function(e){
+  			weight = Math.round(this.value);
+  			update();
+  		});
+  		$('#height').on('input',function(e){
+  			height = Math.round(this.value);
+ 			  update();
+		  });
+  	});
+
+  	function update() {
+      if (weight > 0 && height > 0)
+      {
+        bmi = Math.round(weight/((height*0.01)*(height*0.01)));
+        $('#bmi').text(bmi);
+        if (bmi < 17 || bmi > 39) {
+          $('#result_s').text("Sorry, you are not qualified for the insurance.");
+          $('#result_s').css('background-color', '#e57373');
+          $('#premium').text("");
+        } else if (bmi > 16 && bmi < 40) {
+          premium_result();
+          $('#result_s').text("Congratulation, your are qualified for the insurance and the premium is : "+premium+" per 10 000 $.");
+          $('#result_s').css('background-color', '#81c784');
+        }
+      }
+      else if (weight <= 0 || height <= 0) {
+        $('#result_s').text("");
+        $('#result_s').css('background-color', '#FFFFFF');
+      }
+      if (height < 1) {
+        $('#error_height').text("Error, height must be an integer in centimeters.");
+        bmi = 0;
+        premium = 1;
+        $('#premium').text("");
+        $('#bmi').text("");
+      } else if (height>=1){
+        $('#error_height').text("");
+      }
+
+      if (weight < 1) {
+        $('#error_weight').text("Error, weight must be an integer in kilograms.");
+        bmi = 0;
+        premium = 1;
+        $('#premium').text("");
+        $('#bmi').text("");
+      } else if (weight>=1){
+        $('#error_weight').text("");
+      }
+  	}
+
+    function premium_result() {
+      premium = 1;
+      if (bmi > 16 && bmi < 40) {
+        switch(age) {
+          case 1:
+            if (bmi > 33 && bmi < 37) {
+              premium = 1.75;
+            }
+            else if (bmi > 36 && bmi < 40) {
+              premium = 2;
+            }
+          break;
+          case 2:
+            if (bmi > 33 && bmi < 37) {
+              premium = 1.50;
+            }
+            else if (bmi > 36 && bmi < 40) {
+              premium = 1.75;
+            }
+            break;
+          case 3:
+            if (bmi > 33 && bmi < 37) {
+              premium = 1.25;
+            }
+            else if (bmi > 36 && bmi < 40) {
+              premium = 1.50;
+            }
+            break;
+          default:
+            premium = 1;
+            break;
+          }
+        if (add1 == 0) {
+          premium = premium*1.5;
+        }
+        if (add2 == 0) {
+          premium = premium*1.5;
+        }
+        if (add3 == 0) {
+          premium = premium*1.5;
+        }
+        if (add4 == 0) {
+          premium = premium*1.5;
+        }
+        $('#premium').text(premium);
+      }
+    }
+  </script>
+</html>
